@@ -1,0 +1,15 @@
+eth_blockNumber
+MeowRPC: 100.47 ms
+EnvioHyperRPC: 95.55 ms
+dRPCFreetier: 124.71 ms
+
+eth_getLogs
+MeowRPC: 5772.40 ms
+EnvioHyperRPC: 196.97 ms
+dRPCFreetier: 6169.36 ms
+
+eth_getBlockReceipts
+MeowRPC: 129.67 ms
+EnvioHyperRPC: 140.92 ms
+dRPCFreetier: 151.18 ms
+
