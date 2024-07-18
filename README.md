@@ -7,9 +7,13 @@ In this script we run a very simple vanilla JS script to run iterations of of di
 ## Run
 
 `pnpm i`
+
 `pnpm start`
+
 `ITERATIONS=100 pnpm start` Run with 100 iterations
+
 `ETH_GETLOGS_BLOCKRANGE=1000 pnpm start` Run with a block range of 1000 for eth_getLogs // note many endpoints will fail for large blockranges
+
 `VERBOSE=true pnpm start` for extra logging, useful for slow network tests to see the progress
 
 ## How it works
@@ -80,3 +84,5 @@ Except where the fromBlock value and toBlock value are randomized with the same 
 # Furtherwork
 
 - Add additional data to the raw data & summaries such as the number of iterations, the system run on and possibly the internet speed etc
+- Account for failed requests forming a bias
+- Add metadata to raw data & summary files
