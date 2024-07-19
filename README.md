@@ -1,12 +1,12 @@
 # Basic rpc latency script for benchmarking
 
-In this script we run a very simple vanilla JS script to run iterations of of different rpc providers across a few interested rpc read methods
-
-> Note: currently results arnt factoring failed requests and hence if a req fails which happens quite often with bad rpc's the time is averaged from the failed requests too
+In this script we run a very simple ts script to run iterations of of different rpc providers across a few interested rpc read methods
 
 ## Run
 
 `pnpm i`
+
+`pnpm build`
 
 `pnpm start`
 
@@ -83,6 +83,4 @@ Except where the fromBlock value and toBlock value are randomized with the same 
 
 # Furtherwork
 
-- Add additional data to the raw data & summaries such as the number of iterations, the system run on and possibly the internet speed etc
-- Account for failed requests forming a bias
-- Add metadata to raw data & summary files
+- Add additional data to the raw data & summaries such as the number of iterations, the system run on and possibly the internet speed etc (metadata)
