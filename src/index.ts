@@ -1,8 +1,7 @@
-const fetch = require("node-fetch");
-const fs = require("fs");
-const { performance } = require("perf_hooks");
-
-const rpcProviders = require("../config");
+import fetch from "node-fetch";
+import fs from "fs";
+import { performance } from "perf_hooks";
+import rpcProviders from "./config";
 
 console.log("rpcProviders", rpcProviders);
 
@@ -12,7 +11,14 @@ require("dotenv").config();
 const seedBlock = 18118338;
 const seedBlockHex = "0x" + seedBlock.toString(16);
 
-const ethBlockNumberRPCRequest = (_) => {
+interface RPCRequest {
+  id: number;
+  jsonrpc: string;
+  method: string;
+  params: any[];
+}
+
+const ethBlockNumberRPCRequest = (): RPCRequest => {
   return {
     id: 1,
     jsonrpc: "2.0",
@@ -21,23 +27,20 @@ const ethBlockNumberRPCRequest = (_) => {
   };
 };
 
-const ethGetLogsRPCRequest = (randomBlockNumber) => {
+const ethGetLogsRPCRequest = (randomBlockNumber: number): RPCRequest => {
   const startBlock = randomBlockNumber;
   const blockRange = process.env.ETH_GETLOGS_BLOCKRANGE || 100;
   const endBlock = Number(startBlock) + Number(blockRange);
   const startBlockHex = "0x" + startBlock.toString(16);
   const endBlockHex = "0x" + endBlock.toString(16);
 
-  const requestBody = {
+  return {
     id: 1,
     method: "eth_getLogs",
     jsonrpc: "2.0",
     params: [
       {
-        address: [
-          // "0xdAC17F958D2ee523a2206206994597C13D831ec7", // usdt
-          "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // usdc
-        ],
+        address: ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"], // usdc
         fromBlock: startBlockHex,
         toBlock: endBlockHex,
         topics: [
@@ -46,24 +49,26 @@ const ethGetLogsRPCRequest = (randomBlockNumber) => {
       },
     ],
   };
-
-  return requestBody;
 };
 
-const ethGetBlockReceiptsRPCRequest = (randomBlockNumber) => {
+const ethGetBlockReceiptsRPCRequest = (
+  randomBlockNumber: number
+): RPCRequest => {
   let blockNumberHex = "0x" + randomBlockNumber.toString(16);
 
   return {
     id: 1,
     jsonrpc: "2.0",
     method: "eth_getBlockReceipts",
-    // params: ["latest"],
     params: [blockNumberHex],
   };
 };
 
 // Function to make RPC request
-async function makeRPCRequest(endpoint, request) {
+async function makeRPCRequest(
+  endpoint: string,
+  request: RPCRequest
+): Promise<number | null> {
   const startTime = performance.now();
   try {
     let resp = await fetch(endpoint, {
@@ -92,7 +97,7 @@ async function makeRPCRequest(endpoint, request) {
 }
 
 // Function to get random block number to shift the range of blocks to query to prevent caching impacting results
-function getRandomBlock(seedBlock) {
+function getRandomBlock(seedBlock: string): number {
   const seedBlockNumber = parseInt(seedBlock, 16);
   const entropy = 100_000;
   const randomNumberWithinEntropy = Math.floor(Math.random() * entropy);
@@ -100,7 +105,7 @@ function getRandomBlock(seedBlock) {
   return randomBlock;
 }
 
-function saveAndLogBenchmarkResults(rawResults, summaryResults) {
+function saveAndLogBenchmarkResults(rawResults: any, summaryResults: any) {
   //   Save raw results to file
   const timestamp = new Date().toISOString();
   const rawResultsFilePath = `data/raw/results-${timestamp}.json`;
@@ -132,34 +137,44 @@ function saveAndLogBenchmarkResults(rawResults, summaryResults) {
 
 // Main function to run benchmarks
 async function runBenchmarks() {
-  let methods = [
+  type MethodName = "eth_blockNumber" | "eth_getLogs" | "eth_getBlockReceipts";
+
+  interface Method {
+    name: MethodName;
+    method: (randomBlockNumber: number) => RPCRequest;
+  }
+
+  const methods: Method[] = [
     {
       name: "eth_blockNumber",
-      method: (randomBlockNumber) =>
-        ethBlockNumberRPCRequest(randomBlockNumber),
+      method: () => ethBlockNumberRPCRequest(),
     },
     {
       name: "eth_getLogs",
-      method: (randomBlockNumber) => ethGetLogsRPCRequest(randomBlockNumber),
+      method: (randomBlockNumber: number) =>
+        ethGetLogsRPCRequest(randomBlockNumber),
     },
     {
       name: "eth_getBlockReceipts",
-      method: (randomBlockNumber) =>
+      method: (randomBlockNumber: number) =>
         ethGetBlockReceiptsRPCRequest(randomBlockNumber),
     },
   ];
 
-  // these data structures could be improved
-  const rawResults = {
+  const rawResults: Record<MethodName, number[][]> = {
     eth_blockNumber: [],
     eth_getLogs: [],
     eth_getBlockReceipts: [],
-  }; // Object to store raw results
-  const summaryResults = {
+  };
+
+  const summaryResults: Record<
+    MethodName,
+    Record<string, { averageTime: number; successRate: string }>
+  > = {
     eth_blockNumber: {},
     eth_getLogs: {},
     eth_getBlockReceipts: {},
-  }; // Object to store summary results
+  };
 
   for (let method of methods) {
     console.log(`\n`);
@@ -169,12 +184,12 @@ async function runBenchmarks() {
     // Iterate over RPC providers
     for (let { name, url } of rpcProviders) {
       console.log(`Benchmarking ${name}...`);
-      const requestTimes = [];
+      const requestTimes: number[] = [];
 
       // Make 30 iterations of RPC requests by default unless overridden by ITERATIONS environment variable
       const iterations = process.env.ITERATIONS || 30;
 
-      for (let i = 0; i < iterations; i++) {
+      for (let i = 0; i < Number(iterations); i++) {
         // Make eth_getLogs RPC request
         let blockNumber = getRandomBlock(seedBlockHex);
 

@@ -1,44 +1,44 @@
 {
   "eth_blockNumber": {
     "EnvioHyperRPC": {
-      "averageTime": 82.59249725341797,
-      "successRate": "30/30"
+      "averageTime": 159.10995960235596,
+      "successRate": "1/1"
     },
     "MeowRPC": {
-      "averageTime": 90.27960268656413,
-      "successRate": "30/30"
+      "averageTime": 134.98579216003418,
+      "successRate": "1/1"
     },
     "dRPCFreetier": {
-      "averageTime": 97.61478611628215,
-      "successRate": "30/30"
+      "averageTime": 234.5505428314209,
+      "successRate": "1/1"
     }
   },
   "eth_getLogs": {
     "EnvioHyperRPC": {
-      "averageTime": 156.89684597651163,
-      "successRate": "30/30"
+      "averageTime": 138.8415822982788,
+      "successRate": "1/1"
     },
     "MeowRPC": {
-      "averageTime": 318.4039333025614,
-      "successRate": "30/30"
+      "averageTime": 258.0452079772949,
+      "successRate": "1/1"
     },
     "dRPCFreetier": {
-      "averageTime": 911.9330944061279,
-      "successRate": "30/30"
+      "averageTime": 734.1320848464966,
+      "successRate": "1/1"
     }
   },
   "eth_getBlockReceipts": {
     "EnvioHyperRPC": {
-      "averageTime": 139.54319458007814,
-      "successRate": "30/30"
+      "averageTime": 165.06791591644287,
+      "successRate": "1/1"
     },
     "MeowRPC": {
-      "averageTime": 177.23556941350301,
-      "successRate": "30/30"
+      "averageTime": 177.03849983215332,
+      "successRate": "1/1"
     },
     "dRPCFreetier": {
-      "averageTime": 293.0629056294759,
-      "successRate": "30/30"
+      "averageTime": 253.8129587173462,
+      "successRate": "1/1"
     }
   }
 }
