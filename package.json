@@ -1,5 +1,5 @@
 {
-  "name": "raw-latency-script",
+  "name": "rpc-latency-benchmark-script",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

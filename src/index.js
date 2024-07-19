@@ -24,7 +24,7 @@ const ethBlockNumberRPCRequest = (_) => {
 const ethGetLogsRPCRequest = (randomBlockNumber) => {
   const startBlock = randomBlockNumber;
   const blockRange = process.env.ETH_GETLOGS_BLOCKRANGE || 100;
-  const endBlock = startBlock + blockRange;
+  const endBlock = Number(startBlock) + Number(blockRange);
   const startBlockHex = "0x" + startBlock.toString(16);
   const endBlockHex = "0x" + endBlock.toString(16);
 
@@ -73,8 +73,16 @@ async function makeRPCRequest(endpoint, request) {
     });
     if (!resp.ok) {
       console.warn("Request failed", resp);
-      resp.data;
+      return -1; // null / undefined may be better
     }
+
+    if (process.env.VERBOSE == "true") {
+      console.log(
+        "rpc response length",
+        (await resp.json())["result"]["length"]
+      );
+    }
+
     const endTime = performance.now();
     return endTime - startTime; // Return time taken in milliseconds
   } catch (error) {
@@ -111,24 +119,15 @@ function saveAndLogBenchmarkResults(rawResults, summaryResults) {
   // Save latest results to results.txt
   const latestResultsFilePath = "results.txt";
 
-  let latestResultsContent = "";
-
-  Object.entries(summaryResults).map(([methodName, method]) => {
-    latestResultsContent += methodName + "\n";
-    const methodResultsContent = Object.entries(method)
-      .map(([url, averageTime]) => {
-        return `${url}: ${averageTime.toFixed(2)} ms`;
-      })
-      .join("\n");
-    latestResultsContent += methodResultsContent + "\n\n";
-  });
-
-  fs.writeFileSync(latestResultsFilePath, latestResultsContent);
+  fs.writeFileSync(
+    latestResultsFilePath,
+    JSON.stringify(summaryResults, null, 2)
+  );
   console.log(`Latest results saved to ${latestResultsFilePath}`);
   console.log("\n");
   console.log("Summary results");
   console.log("----------");
-  console.log(latestResultsContent);
+  console.log(summaryResults);
 }
 
 // Main function to run benchmarks
@@ -178,6 +177,7 @@ async function runBenchmarks() {
       for (let i = 0; i < iterations; i++) {
         // Make eth_getLogs RPC request
         let blockNumber = getRandomBlock(seedBlockHex);
+
         const requestTime = await makeRPCRequest(
           url,
           method.method(blockNumber)
@@ -193,14 +193,21 @@ async function runBenchmarks() {
       // Store raw results
       rawResults[method.name].push(requestTimes);
 
+      const successfulRequests = requestTimes.filter((time) => time !== -1);
       // Calculate average request time
       const averageRequestTime =
-        requestTimes.reduce((acc, curr) => acc + curr, 0) / requestTimes.length;
+        successfulRequests.reduce((acc, curr) => acc + curr, 0) /
+        successfulRequests.length;
 
-      summaryResults[method.name][name] = averageRequestTime;
+      summaryResults[method.name][name] = {
+        averageTime: averageRequestTime,
+        successRate: `${successfulRequests.length}/${iterations}`,
+      };
 
       console.log(
-        `Average request time for ${name}: ${averageRequestTime.toFixed(2)} ms`
+        `\n Average request time for ${name}: ${averageRequestTime.toFixed(
+          2
+        )} ms \n`
       );
     }
   }
