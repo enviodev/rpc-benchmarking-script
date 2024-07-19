@@ -17,6 +17,10 @@ const rpcProviders: RPCProvider[] = [
     url: "https://eth.meowrpc.com",
   },
   {
+    name: "Infura",
+    url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+  },
+  {
     name: "dRPCFreetier",
     url: `https://lb.drpc.org/ogrpc?network=ethereum&dkey=${process.env.DRPC_FREE_API_KEY}`,
   },
